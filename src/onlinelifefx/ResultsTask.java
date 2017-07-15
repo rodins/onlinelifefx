@@ -66,7 +66,7 @@ public class ResultsTask extends Task<Results> {
         // Get items
         if(html != null && !html.isEmpty()) {
             Matcher m = Pattern
-                    .compile("<a\\s+href=\"(http://www.online-life.cc/(\\d+?)-.*?html)\"\\s*?>\\n\\s*<img\\s+src=\"(.*?)\"\\s+/>(.+?)\\n?\\s*</a>")
+                    .compile("<a\\s+href=\"(http://www.online-life.[a-z]+?/(\\d+?)-.*?html)\"\\s*?>\\n\\s*<img\\s+src=\"(.*?)\"\\s+/>(.+?)\\n?\\s*</a>")
                     .matcher(html);
             while(m.find()) {
                /* System.out.println(m.group(1)); //href
@@ -134,14 +134,11 @@ public class ResultsTask extends Task<Results> {
                 }
 
                 String html2 = getResultsPart(in);
-                System.out.println(html2);
                 Results results = parseResults(html2);
                 if(isCategories) {
                     results.setCategories(CategoriesParser.parseCategories(html1));
                 }
                 
-                
-
                 return results;
             }
         }finally {
