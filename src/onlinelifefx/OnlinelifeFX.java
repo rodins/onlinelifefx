@@ -69,7 +69,7 @@ import org.controlsfx.control.StatusBar;
  */
 
 public class OnlinelifeFX extends Application {
-    public static final String DOMAIN = "http://online-life.cc";
+    public static final String DOMAIN = "http://online-life.club";
     public final String PROG_NAME = "Online Life";
     private final ExecutorService exec = Executors.newCachedThreadPool();
     //private final ExecutorService exec2 = Executors.newSingleThreadExecutor(); // For downloading files
