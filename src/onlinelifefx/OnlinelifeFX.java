@@ -218,9 +218,17 @@ public class OnlinelifeFX extends Application {
         tvCategories.setOnMouseClicked((MouseEvent event) -> {
             if(event.getClickCount() == 1 &&
                     tvCategories.getSelectionModel().getSelectedItem() != null) {
-                Link link = tvCategories.getSelectionModel().getSelectedItem().getValue();
+                Link link = tvCategories
+                        .getSelectionModel()
+                        .getSelectedItem()
+                        .getValue();
+                Link parentLink = tvCategories
+                        .getSelectionModel()
+                        .getSelectedItem()
+                        .getParent()
+                        .getValue();
                 isSavePrevResults = true;
-                resultsAction(link);
+                resultsAction(link, parentLink);
             }
         });
         
@@ -536,10 +544,12 @@ public class OnlinelifeFX extends Application {
         rootItemCategories.getChildren().clear();
         categories.stream().map((c) -> {
             TreeItem cItem = new TreeItem(c, new ImageView(
-                    new Image(getClass().getResourceAsStream("images/folder_movies_16.png"))
+                    new Image(getClass()
+                            .getResourceAsStream("images/folder_movies_16.png"))
             ));
             c.Links.stream().map((l) -> new TreeItem(l, new ImageView(
-                    new Image(getClass().getResourceAsStream("images/link_16.png"))
+                    new Image(getClass()
+                            .getResourceAsStream("images/link_16.png"))
             ))).forEachOrdered((lItem) -> {
                 cItem.getChildren().add(lItem);
             });
@@ -551,7 +561,8 @@ public class OnlinelifeFX extends Application {
     
     private void resultsActionSearch(String query) {
         try {
-            baseUrl = DOMAIN + "?do=search&subaction=search&mode=simple&story=" + URLEncoder.encode(query, "windows-1251");
+            baseUrl = DOMAIN + "?do=search&subaction=search&mode=simple&story="
+                    + URLEncoder.encode(query, "windows-1251");
             resultsAction("Search: " + query, baseUrl, baseUrl);
         } catch (UnsupportedEncodingException e) {
             errorDialog("Encoding error!");
@@ -560,6 +571,14 @@ public class OnlinelifeFX extends Application {
     
     private void resultsAction(Link link) {
         resultsAction(link.Title, link.Href, "");
+    }
+    
+    private void resultsAction(Link link, Link parentLink) {
+        if(!parentLink.Title.isEmpty()) {
+            resultsAction(parentLink.Title + " - " + link.Title, link.Href, "");
+        }else {
+            resultsAction(link.Title, link.Href, "");
+        }
     }
     
     private void savePrevResults() {
@@ -1094,5 +1113,5 @@ public class OnlinelifeFX extends Application {
         statusBar.setProgress(0);
         btnCancelStatus.setVisible(false);
     }
-    
+
 }
