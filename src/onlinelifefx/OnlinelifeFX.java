@@ -114,6 +114,8 @@ public class OnlinelifeFX extends Application {
     private Result parent = null; // for remembering serial episodes played
     private File appDir, serialsDir, watchedDir, moviesDir;
     private final Set<String> comments = new HashSet<>(); // saved in file episodes titles (comments)
+    
+    VBox vbLeft = new VBox();
    
     @Override
     public void start(Stage primaryStage) {
@@ -144,6 +146,13 @@ public class OnlinelifeFX extends Application {
                 new Image(getClass().getResourceAsStream("images/folder_movies_24.png"))));
         btnCategories.setTooltip(new Tooltip("Categories"));
         btnCategories.setOnAction((ActionEvent event) -> {
+            // Show/hide categories
+            if(border.getLeft() == null) {
+                border.setLeft(vbLeft);
+            }else {
+                border.setLeft(null);
+            }
+            
             // Dynamic programming: download categories only if it's empty
             if(categories == null || categories.isEmpty()) {
                 CategoriesTask task = new CategoriesTask(DOMAIN);
@@ -348,13 +357,12 @@ public class OnlinelifeFX extends Application {
         });
         lvBackActors.setCellFactory((ListView<Actors> param) -> new BackActorsListCell());
         
-        VBox vbLeft = new VBox();
         vbLeft.getChildren().addAll(tvCategories, lvBackResults);
         vbActors.getChildren().addAll(lbActors, lbActorsInfo, lvActors, lvBackActors);
         
         border.setTop(toolbar);
-        border.setLeft(vbLeft);
-        border.setRight(vbActors);
+        //border.setLeft(vbLeft);
+        //border.setRight(vbActors);
         border.setCenter(vbox);
         border.setBottom(statusBar);
         
