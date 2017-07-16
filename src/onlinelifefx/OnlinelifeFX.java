@@ -78,6 +78,7 @@ public class OnlinelifeFX extends Application {
     private TreeItem<Link> rootItemCategories;
     
     private Button btnPrev, btnNext, btnUp, btnSavedSerials, btnSavedMovies;
+    private Button btnHistory;
     //private ToggleButton btnPlay, btnDownload;
     private Label lbPage;
     private final Label lbActors = new Label(),
@@ -137,15 +138,26 @@ public class OnlinelifeFX extends Application {
                 resultsActionSearch(text);
             }
         });
-        
         query.setPromptText("Search onlinelife");
+        
+        ListView<Results> lvBackResults = new ListView<>(backResults);
+        lvBackResults.setOnMouseClicked((MouseEvent event) -> {
+            if(event.getClickCount() == 1) {
+                // Save currently displayed results
+                savePrevResultsSimple();
+                results = lvBackResults.getSelectionModel().getSelectedItem();
+                updateResults();
+            }
+        });
+        lvBackResults.setCellFactory((ListView<Results> param) -> new BackResultsListCell());
+        
         Button btnCategories = new Button();
         btnCategories.setGraphic(new ImageView(
                 new Image(getClass().getResourceAsStream("images/folder_movies_24.png"))));
         btnCategories.setTooltip(new Tooltip("Categories"));
         btnCategories.setOnAction((ActionEvent event) -> {
             // Show/hide categories
-            if(border.getLeft() == null) {
+            if(border.getLeft() == null || border.getLeft() == lvBackResults) {
                 border.setLeft(tvCategories);
             }else {
                 border.setLeft(null);
@@ -178,6 +190,20 @@ public class OnlinelifeFX extends Application {
                 tasks.add(task);
             }else {
                 updateCategories();
+            }
+        });
+        
+        // History button
+        btnHistory = new Button();
+        btnHistory.setDisable(true);
+        btnHistory.setGraphic(new ImageView(
+                new Image(getClass().getResourceAsStream("images/history_24.png"))));
+        btnHistory.setTooltip(new Tooltip("History"));
+        btnHistory.setOnAction((ActionEvent event) -> {
+            if(border.getLeft() == null || border.getLeft() == tvCategories) {
+                border.setLeft(lvBackResults);
+            }else {
+                border.setLeft(null);
             }
         });
         
@@ -295,6 +321,8 @@ public class OnlinelifeFX extends Application {
         toolbar.getItems().addAll(
                 btnCategories,
                 new Separator(),
+                btnHistory,
+                new Separator(),
                 btnUp, 
                 new Separator(),
                 btnPrev, lbPage, btnNext,
@@ -331,18 +359,6 @@ public class OnlinelifeFX extends Application {
         //VBox.setVgrow(lvActors, Priority.ALWAYS);
         lbActorsInfo.setMaxWidth(250);
         lbActorsInfo.setPadding(new Insets(2, 2, 2, 2));
-        
-        ListView<Results> lvBackResults = new ListView<>(backResults);
-        
-        lvBackResults.setOnMouseClicked((MouseEvent event) -> {
-            if(event.getClickCount() == 1) {
-                // Save currently displayed results
-                savePrevResultsSimple();
-                results = lvBackResults.getSelectionModel().getSelectedItem();
-                updateResults();
-            }
-        });
-        lvBackResults.setCellFactory((ListView<Results> param) -> new BackResultsListCell());
         
         ListView<Actors> lvBackActors = new ListView<>(backActors);
         lvBackActors.setOnMouseClicked((MouseEvent event) -> {
@@ -557,6 +573,11 @@ public class OnlinelifeFX extends Application {
                 backResults.add(results);
             }
         }
+        
+        // Enable history button
+        if(btnHistory.isDisable() && !backResults.isEmpty()) {
+            btnHistory.setDisable(false);
+        }
     }
     
     private void savePrevResultsSimple() {
@@ -564,6 +585,11 @@ public class OnlinelifeFX extends Application {
             if(!backResults.contains(results)) {
                 backResults.add(results);
             }
+        }
+        
+        // Enable history button
+        if(btnHistory.isDisable() && !backResults.isEmpty()) {
+            btnHistory.setDisable(false);
         }
     }
     
