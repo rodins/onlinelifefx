@@ -1006,16 +1006,15 @@ public class OnlinelifeFX extends Application {
         results.setTitle("Saved movies");
     }
     
-    private Process playMovie(PlayItem playItem) {
-        try {
-            return PlayItemProcessor.runPlayer(playItem);
-        } catch (IOException ex) {
+    private void playMovie(PlayItem playItem) {
+        PlayerTask task = new PlayerTask(playItem.getFile());
+        task.setOnFailed((WorkerStateEvent event1) -> {
             errorDialog("Player error!");
-        }
-        return null;
+        });
+        exec.execute(task);
     }
     
-    private Process playSerial(PlayItem playItem) {
+    private void playSerial(PlayItem playItem) {
         if(appDir.exists() && appDir.canWrite()) {// is this check needed ?
 
             saveSerial(parent); // To have a list of watched serials
@@ -1033,7 +1032,7 @@ public class OnlinelifeFX extends Application {
                 tvPlaylists.refresh();
             }
         }
-        return playMovie(playItem);
+        playMovie(playItem);
     }
     
     private void downloadPlayItem(PlayItem playItem) {
