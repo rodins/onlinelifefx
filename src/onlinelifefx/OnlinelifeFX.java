@@ -102,6 +102,7 @@ public class OnlinelifeFX extends Application {
     private final VBox vbDownload = new VBox();
     
     private final VBox vbox = new VBox();
+    private final VBox vbActors = new VBox();
     
     private final GridView<Result> resultsView = new GridView<>();
     private final StatusBar statusBar = new StatusBar();
@@ -317,7 +318,11 @@ public class OnlinelifeFX extends Application {
         btnInfo.setTooltip(new Tooltip("Show/hide info"));
         btnInfo.setDisable(true);
         btnInfo.setOnAction((ActionEvent event) -> {
-            
+            if(border.getRight() == null) {
+                border.setRight(vbActors);
+            }else {
+                border.setRight(null);
+            }
         });
         
         Button btnExit = new Button();
@@ -368,7 +373,6 @@ public class OnlinelifeFX extends Application {
         vbDownload.setAlignment(Pos.CENTER);
         vbox.getChildren().addAll(tvPlaylists);
         
-        VBox vbActors = new VBox();
         lbActors.setMaxWidth(250);
         //lbActors.setMinHeight(40);
         lbActors.setPadding(new Insets(2, 2, 2, 2));
@@ -909,6 +913,8 @@ public class OnlinelifeFX extends Application {
     }
     
     public void actorsAction(Result result) {
+        border.setRight(vbActors);
+        btnInfo.setDisable(false);
         // Do not reload currently displayed actors
         if(lbActors.getText().contains(result.Title)) {
             return;
