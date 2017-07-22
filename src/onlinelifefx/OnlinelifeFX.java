@@ -77,7 +77,7 @@ public class OnlinelifeFX extends Application {
     private TreeItem<PlayItem> rootItem;
     private TreeItem<Link> rootItemCategories;
     
-    private Button btnPrev, btnNext, btnUp, btnSavedSerials, btnSavedMovies;
+    private Button btnPrev, btnNext, btnUp, btnSavedSerials, btnSavedMovies, btnInfo;
     private Button btnHistory;
     //private ToggleButton btnPlay, btnDownload;
     private Label lbPage;
@@ -311,6 +311,15 @@ public class OnlinelifeFX extends Application {
             updateResults();
         });
         
+        btnInfo = new Button();
+        btnInfo.setGraphic(new ImageView(
+                new Image(getClass().getResourceAsStream("images/info_24.png"))));
+        btnInfo.setTooltip(new Tooltip("Show/hide info"));
+        btnInfo.setDisable(true);
+        btnInfo.setOnAction((ActionEvent event) -> {
+            
+        });
+        
         Button btnExit = new Button();
         btnExit.setGraphic(new ImageView(
                 new Image(getClass().getResourceAsStream("images/logout_24.png"))));
@@ -340,8 +349,8 @@ public class OnlinelifeFX extends Application {
                 btnSavedSerials,
                 btnSavedMovies,
                 new Separator(),
-                /*btnPlay, btnDownload,
-                new Separator(),*/
+                btnInfo,
+                new Separator(),
                 btnExit);
         
         btnCancel.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("images/close_16.png"))));
