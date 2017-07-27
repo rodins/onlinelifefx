@@ -45,6 +45,7 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
@@ -157,12 +158,6 @@ public class OnlinelifeFX extends Application {
                 new Image(getClass().getResourceAsStream("images/folder_movies_24.png"))));
         btnCategories.setTooltip(new Tooltip("Categories"));
         btnCategories.setOnAction((ActionEvent event) -> {
-            // Show/hide categories
-            if(border.getLeft() == null || border.getLeft() == lvBackResults) {
-                border.setLeft(tvCategories);
-            }else {
-                border.setLeft(null);
-            }
             
             // Dynamic programming: download categories only if it's empty
             if(categories == null || categories.isEmpty()) {
@@ -173,24 +168,35 @@ public class OnlinelifeFX extends Application {
                 task.setOnSucceeded((WorkerStateEvent event1) -> {
                     categories = task.getValue();
                     updateCategories();
-                    deactivateProgressBar("Done.");
+                    border.setLeft(tvCategories);
+                    //deactivateProgressBar("Done.");
                     tasks.remove(task);
                 });
                 task.setOnFailed((WorkerStateEvent event1) -> {
-                    deactivateProgressBar("Error");
+                    //deactivateProgressBar("Error");
                     tasks.remove(task);
                     errorDialog(task.getException().toString());
                 });
                 task.setOnCancelled((WorkerStateEvent event1) -> {
-                    deactivateProgressBar("Categories cancelled.");
+                    //deactivateProgressBar("Categories cancelled.");
                     tasks.remove(task);
                 });
                 cancelTasks();
-                activateProgressBar("Getting categories...");
+                //activateProgressBar("Getting categories...");
+                ProgressIndicator pi = new ProgressIndicator(-1.0);
+                //TODO: values 100.0 shouldn't be hardcoded
+                // Value was jast guessed and it works
+                BorderPane.setMargin(pi, new Insets(0, 100.0, 0, 100.0));
+                border.setLeft(pi);
                 exec.execute(task);
                 tasks.add(task);
             }else {
-                updateCategories();
+                // Show/hide categories
+                if(border.getLeft() == null || border.getLeft() == lvBackResults) {
+                    border.setLeft(tvCategories);
+                }else {
+                    border.setLeft(null);
+                }
             }
         });
         
