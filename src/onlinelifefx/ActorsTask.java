@@ -97,6 +97,7 @@ public class ActorsTask extends Task<Actors>{
                     title = title.replace("&#243;", "ó");
                     title = title.replace("&#233;", "é");
                     title = title.replace("&#252;", "ü");
+                    title = title.replace("&#237;", "í");
                     actors.add(new Link(title, m1.group(1)));
                 }
             }
