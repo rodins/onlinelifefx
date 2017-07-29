@@ -169,20 +169,22 @@ public class OnlinelifeFX extends Application {
                     categories = task.getValue();
                     updateCategories();
                     border.setLeft(tvCategories);
-                    //deactivateProgressBar("Done.");
                     tasks.remove(task);
                 });
                 task.setOnFailed((WorkerStateEvent event1) -> {
-                    //deactivateProgressBar("Error");
                     tasks.remove(task);
-                    errorDialog(task.getException().toString());
+                    Button btnRepeat = new Button("Repeat");
+                    btnRepeat.setOnAction(
+                        btnCategories.getOnAction()
+                    );
+                    BorderPane.setMargin(btnRepeat, new Insets(0, 100.0, 0, 100.0));
+                    BorderPane.setAlignment(btnRepeat, Pos.CENTER);
+                    border.setLeft(btnRepeat);
                 });
-                task.setOnCancelled((WorkerStateEvent event1) -> {
-                    //deactivateProgressBar("Categories cancelled.");
-                    tasks.remove(task);
-                });
+                task.setOnCancelled(
+                    task.getOnFailed()
+                );
                 cancelTasks();
-                //activateProgressBar("Getting categories...");
                 ProgressIndicator pi = new ProgressIndicator(-1.0);
                 //TODO: values 100.0 shouldn't be hardcoded
                 // Value was jast guessed and it works
