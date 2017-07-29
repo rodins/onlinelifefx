@@ -102,7 +102,7 @@ public class OnlinelifeFX extends Application {
     private final Label lbInfo = new Label();
     private final VBox vbDownload = new VBox();
     
-    private final VBox vbox = new VBox();
+    private final VBox vbCenter = new VBox();
     private final VBox vbActors = new VBox();
     
     private final GridView<Result> resultsView = new GridView<>();
@@ -379,7 +379,7 @@ public class OnlinelifeFX extends Application {
         vbDownload.getChildren().addAll(hbDownload, lbInfo);
         vbDownload.setPadding(new Insets(2, 2, 2, 2));
         vbDownload.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(tvPlaylists);
+        vbCenter.getChildren().add(tvPlaylists);
         
         lbActors.setMaxWidth(250);
         //lbActors.setMinHeight(40);
@@ -403,7 +403,7 @@ public class OnlinelifeFX extends Application {
         vbActors.getChildren().addAll(lbActors, lbActorsInfo, lvActors, lvBackActors);
         
         border.setTop(toolbar);
-        border.setCenter(vbox);
+        border.setCenter(vbCenter);
         border.setBottom(statusBar);
         
         Scene scene = new Scene(border, 750, 500);
@@ -641,7 +641,6 @@ public class OnlinelifeFX extends Application {
         task.setOnSucceeded((WorkerStateEvent event1) -> {
             // Save previous results
             savePrevResults();
-            
             results = task.getValue();
             results.setTitle(title);
             updateResults();
@@ -649,20 +648,23 @@ public class OnlinelifeFX extends Application {
                 categories = results.getCategories();
                 updateCategories();
             }
-            deactivateProgressBar("Done.");
+            border.setCenter(vbCenter);
             tasks.remove(task);
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Error");
             tasks.remove(task);
-            errorDialog(task.getException().toString());
+            Button btnRepeat = new Button("Repeat");
+            btnRepeat.setOnAction((ActionEvent event2) -> {
+                // recursive call of resultsAction method
+                resultsAction(title, link, bUrl);
+            });
+            border.setCenter(btnRepeat);
         });
-        task.setOnCancelled((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Results cancelled.");
-            tasks.remove(task);
-        });
+        task.setOnCancelled(task.getOnFailed());
         cancelTasks();
-        activateProgressBar("Getting results...");
+        ProgressIndicator pi = new ProgressIndicator(-1.0);
+        pi.setMaxSize(50.0, 50.0);
+        border.setCenter(pi);
         exec.execute(task);
         tasks.add(task);
     }
@@ -682,9 +684,9 @@ public class OnlinelifeFX extends Application {
         resultsView.getItems().addAll(results.getItems());
         
         // Replace treeView with GridView
-        if(vbox.getChildren().contains(tvPlaylists)) {
-            vbox.getChildren().remove(tvPlaylists);
-            vbox.getChildren().add(0, resultsView);
+        if(vbCenter.getChildren().contains(tvPlaylists)) {
+            vbCenter.getChildren().remove(tvPlaylists);
+            vbCenter.getChildren().add(0, resultsView);
         }
 
         if(results.getPrevLink() != null && !results.getPrevLink().isEmpty()) {
@@ -1072,14 +1074,14 @@ public class OnlinelifeFX extends Application {
 
         //TODO: warning about existing file?
 
-        if(vbox.getChildren().contains(vbDownload)) {
+        if(vbCenter.getChildren().contains(vbDownload)) {
             statusBar.setText("");
             Alert alert = new Alert(AlertType.WARNING, "Downloader is busy!");
             alert.showAndWait();
             return;
         }
 
-        vbox.getChildren().add(1, vbDownload);
+        vbCenter.getChildren().add(1, vbDownload);
         DownloadTask task = new DownloadTask(playItem.getDownload(), saveFile);
         pbDownload.progressProperty().bind(task.progressProperty());
         lbInfo.textProperty().bind(task.messageProperty());
@@ -1087,14 +1089,14 @@ public class OnlinelifeFX extends Application {
             if(task.isRunning()) {
                 task.cancel();
             }else {
-                vbox.getChildren().remove(vbDownload);
+                vbCenter.getChildren().remove(vbDownload);
             }
         });
         task.setOnRunning((WorkerStateEvent event) -> {
             lbDownload.setText(playItem.getComment()); 
         });
         task.setOnCancelled((WorkerStateEvent event) -> {
-            vbox.getChildren().remove(vbDownload);
+            vbCenter.getChildren().remove(vbDownload);
             pbDownload.progressProperty().unbind();
             pbDownload.setProgress(0);
         });
@@ -1118,9 +1120,9 @@ public class OnlinelifeFX extends Application {
     
     private void replaceResultsToTreeView() {
         // Replace resultsView with treeView 
-        if(vbox.getChildren().contains(resultsView)) {
-            vbox.getChildren().remove(resultsView);
-            vbox.getChildren().add(0, tvPlaylists);
+        if(vbCenter.getChildren().contains(resultsView)) {
+            vbCenter.getChildren().remove(resultsView);
+            vbCenter.getChildren().add(0, tvPlaylists);
         }
     }
     
