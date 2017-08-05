@@ -923,7 +923,6 @@ public class OnlinelifeFX extends Application {
     }
     
     public void actorsAction(Result result) {
-        border.setRight(vbActors);
         btnInfo.setDisable(false);
         // Do not reload currently displayed actors
         if(lbActors.getText().contains(result.Title)) {
@@ -947,21 +946,31 @@ public class OnlinelifeFX extends Application {
             Actors actors = task.getValue();
             actors.setTitle(result.Title);
             saveActors();
-            deactivateProgressBar("Done.");
             updateActors(actors);
+            border.setRight(vbActors);
             tasks.remove(task);
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Error");
+            Button btnRepeat = new Button("Repeat");
+            btnRepeat.setOnAction((ActionEvent event2) ->{
+                actorsAction(result); //recursive call
+            });
+            BorderPane.setMargin(btnRepeat, new Insets(0, 100.0, 0, 100.0));
+            BorderPane.setAlignment(btnRepeat, Pos.CENTER);
+            border.setRight(btnRepeat);
             tasks.remove(task);
-            errorDialog(task.getException().toString());
         });
-        task.setOnCancelled((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Actors cancelled.");
-            tasks.remove(task);
-        });
+        task.setOnCancelled(
+            task.getOnFailed()
+        );
         cancelTasks();
-        activateProgressBar("Getting actors...");
+        ProgressIndicator pi = new ProgressIndicator(-1.0);
+        pi.setMaxSize(50.0, 50.0);
+        //TODO: values 100.0 shouldn't be hardcoded
+        // Value was jast guessed and it works
+        BorderPane.setAlignment(pi, Pos.CENTER);
+        BorderPane.setMargin(pi, new Insets(0, 100.0, 0, 100.0));
+        border.setRight(pi);
         exec.execute(task);
         tasks.add(task);
     }
