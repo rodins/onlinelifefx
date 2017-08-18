@@ -878,6 +878,7 @@ public class OnlinelifeFX extends Application {
         border.setCenter(pi);
         playlistButtons();
         lbPage.setText("");
+        window.setTitle(PROG_NAME + " - " + result.Title);
         exec.execute(task);
         tasks.add(task);
     }
@@ -885,8 +886,6 @@ public class OnlinelifeFX extends Application {
     private void updatePlaylists(Playlists playlists) {
         displayMode = DisplayMode.PLAYLIST;
         lbPage.setText("");
-        
-        window.setTitle(PROG_NAME + " - " + playlists.getTitle());
         
         // Read comments (watched episodes) from file
         File saveFile = new File(watchedDir, parent.Id);                
