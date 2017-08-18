@@ -844,7 +844,6 @@ public class OnlinelifeFX extends Application {
             Playlists playlists = task.getValue();
             if(playlists != null) {
                 playlists.setTitle(result.Title);
-                deactivateProgressBar("Done.");
                 /*if(playlists.getPlayItem() != null) {
                     processPlayItem(playlists.getPlayItem());
                 }else {
@@ -853,24 +852,29 @@ public class OnlinelifeFX extends Application {
                 }*/
                 parent = result;
                 updatePlaylists(playlists);
+                border.setCenter(vbCenter);
                 tasks.remove(task);
             }else {
-                deactivateProgressBar("Error");
                 tasks.remove(task);
                 errorDialog("This link is not supported!");
             }
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Error");
+            Button btnRepeat = new Button("Repeat");
+            btnRepeat.setOnAction((ActionEvent event2) -> {
+                // recursive call of playlistsAction method
+                playlistsAction(result, js);
+            });
+            border.setCenter(btnRepeat);
             tasks.remove(task);
-            errorDialog(task.getException().toString());
         });
-        task.setOnCancelled((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Playlists cancelled.");
-            tasks.remove(task);
-        });
+        task.setOnCancelled(
+            task.getOnFailed()
+        );
         cancelTasks();
-        activateProgressBar("Getting playlists...");
+        ProgressIndicator pi = new ProgressIndicator(-1.0);
+        pi.setMaxSize(50.0, 50.0);
+        border.setCenter(pi);
         exec.execute(task);
         tasks.add(task);
     }
