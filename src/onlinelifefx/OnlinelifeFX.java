@@ -844,7 +844,6 @@ public class OnlinelifeFX extends Application {
         task.setOnSucceeded((WorkerStateEvent event1) -> {
             Playlists playlists = task.getValue();
             if(playlists != null) {
-                playlists.setTitle(result.Title);
                 /*if(playlists.getPlayItem() != null) {
                     processPlayItem(playlists.getPlayItem());
                 }else {
