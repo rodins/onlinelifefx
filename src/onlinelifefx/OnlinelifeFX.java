@@ -350,7 +350,7 @@ public class OnlinelifeFX extends Application {
         
         btnCancelTasks.setGraphic(
                 new ImageView(new Image(getClass()
-                        .getResourceAsStream("images/close_16.png"))));
+                        .getResourceAsStream("images/stop_24.png"))));
         btnCancelTasks.setTooltip(new Tooltip("Stop current task"));
         btnCancelTasks.setDisable(true);
         
