@@ -62,7 +62,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import org.controlsfx.control.GridView;
-import org.controlsfx.control.StatusBar;
 
 /**
  *
@@ -95,7 +94,7 @@ public class OnlinelifeFX extends Application {
     private final ObservableList<Actors> backActors = FXCollections.observableArrayList();
     
     private final Button btnCancel = new Button();
-    private final Button btnCancelStatus = new Button();
+    private final Button btnCancelTasks = new Button();
     
     private final ProgressBar pbDownload = new ProgressBar(0.0);
     private final Label lbDownload = new Label();
@@ -106,7 +105,6 @@ public class OnlinelifeFX extends Application {
     private final VBox vbActors = new VBox();
     
     private final GridView<Result> resultsView = new GridView<>();
-    private final StatusBar statusBar = new StatusBar();
     private final BorderPane border = new BorderPane();
     private final TreeView<Link> tvCategories = new TreeView<>();
     private final ListView<Link> lvActors = new ListView<>();
@@ -162,17 +160,20 @@ public class OnlinelifeFX extends Application {
             // Dynamic programming: download categories only if it's empty
             if(categories == null || categories.isEmpty()) {
                 CategoriesTask task = new CategoriesTask(DOMAIN);
-                btnCancelStatus.setOnAction((ActionEvent event2) -> {
+                btnCancelTasks.setOnAction((ActionEvent event2) -> {
                     task.cancel();
                 });
+                btnCancelTasks.setDisable(false);
                 task.setOnSucceeded((WorkerStateEvent event1) -> {
                     categories = task.getValue();
                     updateCategories();
                     border.setLeft(tvCategories);
                     tasks.remove(task);
+                    btnCancelTasks.setDisable(true);
                 });
                 task.setOnFailed((WorkerStateEvent event1) -> {
                     tasks.remove(task);
+                    btnCancelTasks.setDisable(true);
                     Button btnRepeat = new Button("Repeat");
                     btnRepeat.setOnAction(
                         btnCategories.getOnAction()
@@ -334,7 +335,8 @@ public class OnlinelifeFX extends Application {
         
         Button btnExit = new Button();
         btnExit.setGraphic(new ImageView(
-                new Image(getClass().getResourceAsStream("images/logout_24.png"))));
+                new Image(getClass()
+                        .getResourceAsStream("images/logout_24.png"))));
         btnExit.setTooltip(new Tooltip("Exit"));
         btnExit.setOnAction((ActionEvent event) -> {
             Platform.exit();
@@ -346,11 +348,19 @@ public class OnlinelifeFX extends Application {
         resultsView.setCellWidth(180);
         resultsView.setCellHeight(300);
         
+        btnCancelTasks.setGraphic(
+                new ImageView(new Image(getClass()
+                        .getResourceAsStream("images/close_16.png"))));
+        btnCancelTasks.setTooltip(new Tooltip("Stop current task"));
+        btnCancelTasks.setDisable(true);
+        
         ToolBar toolbar = new ToolBar();
         toolbar.getItems().addAll(
                 btnCategories,
                 new Separator(),
                 btnHistory,
+                new Separator(),
+                btnCancelTasks,
                 new Separator(),
                 btnUp, 
                 new Separator(),
@@ -366,9 +376,6 @@ public class OnlinelifeFX extends Application {
                 btnExit);
         
         btnCancel.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("images/close_16.png"))));
-        btnCancelStatus.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("images/close_16.png"))));
-        btnCancelStatus.setVisible(false);
-        statusBar.getRightItems().add(btnCancelStatus);
         
         HBox hbDownload = new HBox();
         hbDownload.setAlignment(Pos.CENTER);
@@ -403,7 +410,6 @@ public class OnlinelifeFX extends Application {
         
         border.setTop(toolbar);
         border.setCenter(vbCenter);
-        border.setBottom(statusBar);
         
         Scene scene = new Scene(border, 750, 500);
         // Application icon doesn't work on Ubuntu, but sometimes works, don't know why
@@ -634,9 +640,10 @@ public class OnlinelifeFX extends Application {
     
     private void resultsAction(String title, String link, String bUrl) {
         ResultsTask task = new ResultsTask(link, bUrl, categories == null);
-        btnCancelStatus.setOnAction((ActionEvent event2) -> {
+        btnCancelTasks.setOnAction((ActionEvent event2) -> {
             task.cancel();
         });
+        btnCancelTasks.setDisable(false);
         task.setOnSucceeded((WorkerStateEvent event1) -> {
             // Save previous results
             savePrevResults();
@@ -649,9 +656,11 @@ public class OnlinelifeFX extends Application {
             }
             border.setCenter(vbCenter);
             tasks.remove(task);
+            btnCancelTasks.setDisable(true);
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
             tasks.remove(task);
+            btnCancelTasks.setDisable(true);
             Button btnRepeat = new Button("Repeat");
             btnRepeat.setOnAction((ActionEvent event2) -> {
                 // recursive call of resultsAction method
@@ -763,12 +772,14 @@ public class OnlinelifeFX extends Application {
     
     private void playItemAction(Result result) {
         PlayItemTask task = new PlayItemTask(result);
-        btnCancelStatus.setOnAction((ActionEvent event) -> {
+        btnCancelTasks.setOnAction((ActionEvent event) -> {
             task.cancel();
         });
+        btnCancelTasks.setDisable(false);
         task.setOnSucceeded((WorkerStateEvent event2) -> {
             border.setCenter(vbCenter);
             tasks.remove(task);
+            btnCancelTasks.setDisable(true);
             PlayItem playItem = task.getValue();
             String bookmark;
             if(results.isSaveable()) { // For not saved serials
@@ -829,7 +840,7 @@ public class OnlinelifeFX extends Application {
             });
             border.setCenter(btnRepeat);
             tasks.remove(task);
-            //errorDialog(task.getException().toString());
+            btnCancelTasks.setDisable(true);
         });
         task.setOnCancelled(task.getOnFailed());
         cancelTasks();
@@ -842,9 +853,10 @@ public class OnlinelifeFX extends Application {
     
     private void playlistsAction(Result result, String js) {
         PlaylistTask task = new PlaylistTask(js);
-        btnCancelStatus.setOnAction((ActionEvent event2) -> {
+        btnCancelTasks.setOnAction((ActionEvent event2) -> {
             task.cancel();
         });
+        btnCancelTasks.setDisable(false);
         task.setOnSucceeded((WorkerStateEvent event1) -> {
             Playlists playlists = task.getValue();
             if(playlists != null) {
@@ -857,11 +869,11 @@ public class OnlinelifeFX extends Application {
                 parent = result;
                 updatePlaylists(playlists);
                 border.setCenter(vbCenter);
-                tasks.remove(task);
             }else {
-                tasks.remove(task);
                 errorDialog("This link is not supported!");
             }
+            tasks.remove(task);
+            btnCancelTasks.setDisable(true);
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
             Button btnRepeat = new Button("Repeat");
@@ -871,6 +883,7 @@ public class OnlinelifeFX extends Application {
             });
             border.setCenter(btnRepeat);
             tasks.remove(task);
+            btnCancelTasks.setDisable(true);
         });
         task.setOnCancelled(
             task.getOnFailed()
@@ -946,7 +959,7 @@ public class OnlinelifeFX extends Application {
         }
         
         ActorsTask task = new ActorsTask(result.Href);
-        btnCancelStatus.setOnAction((ActionEvent event2) -> {
+        btnCancelTasks.setOnAction((ActionEvent event2) -> {
             task.cancel();
         });
         task.setOnSucceeded((WorkerStateEvent event1) -> {
@@ -1091,7 +1104,6 @@ public class OnlinelifeFX extends Application {
         //TODO: warning about existing file?
 
         if(vbCenter.getChildren().contains(vbDownload)) {
-            statusBar.setText("");
             Alert alert = new Alert(AlertType.WARNING, "Downloader is busy!");
             alert.showAndWait();
             return;
@@ -1141,17 +1153,4 @@ public class OnlinelifeFX extends Application {
             vbCenter.getChildren().add(0, tvPlaylists);
         }
     }
-    
-    private void activateProgressBar(String text) {
-        statusBar.setText(text);
-        statusBar.setProgress(-1);
-        btnCancelStatus.setVisible(true);
-    }
-    
-    private void deactivateProgressBar(String text) {
-        statusBar.setText(text);
-        statusBar.setProgress(0);
-        btnCancelStatus.setVisible(false);
-    }
-
 }
