@@ -275,12 +275,11 @@ public class OnlinelifeFX extends Application {
         btnUp = new Button();
         btnUp.setGraphic(new ImageView(
                 new Image(getClass().getResourceAsStream("images/up_24.png"))));
-        btnUp.setTooltip(new Tooltip("Up results"));
+        btnUp.setTooltip(new Tooltip("Up to results"));
         btnUp.setOnAction((ActionEvent event) -> {
-            //isSavePrevResults = false;
-            if(displayMode == DisplayMode.PLAYLIST) {
-                updateResults();
-            }
+            cancelTasks();
+            border.setCenter(vbCenter);
+            updateResults();
         });
         
         //ToggleGroup group = new ToggleGroup();
@@ -670,8 +669,10 @@ public class OnlinelifeFX extends Application {
     }
     
     public void updateResults() {
-        if(results == null) 
+        if(results == null) {
             return;
+        }
+            
         displayMode = DisplayMode.RESULTS;
         
         btnUp.setDisable(true);
@@ -875,6 +876,8 @@ public class OnlinelifeFX extends Application {
         ProgressIndicator pi = new ProgressIndicator(-1.0);
         pi.setMaxSize(50.0, 50.0);
         border.setCenter(pi);
+        playlistButtons();
+        lbPage.setText("");
         exec.execute(task);
         tasks.add(task);
     }
@@ -882,8 +885,6 @@ public class OnlinelifeFX extends Application {
     private void updatePlaylists(Playlists playlists) {
         displayMode = DisplayMode.PLAYLIST;
         lbPage.setText("");
-        
-        playlistButtons();
         
         window.setTitle(PROG_NAME + " - " + playlists.getTitle());
         
