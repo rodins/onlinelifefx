@@ -767,7 +767,7 @@ public class OnlinelifeFX extends Application {
             task.cancel();
         });
         task.setOnSucceeded((WorkerStateEvent event2) -> {
-            deactivateProgressBar("Done.");
+            border.setCenter(vbCenter);
             tasks.remove(task);
             PlayItem playItem = task.getValue();
             String bookmark;
@@ -822,16 +822,20 @@ public class OnlinelifeFX extends Application {
             }
         });
         task.setOnFailed((WorkerStateEvent event1) -> {
-            deactivateProgressBar("Error");
+            Button btnRepeat = new Button("Repeat");
+            btnRepeat.setOnAction((ActionEvent event2) -> {
+                // recursive call
+                playItemAction(result);
+            });
+            border.setCenter(btnRepeat);
             tasks.remove(task);
-            errorDialog(task.getException().toString());
+            //errorDialog(task.getException().toString());
         });
-        task.setOnCancelled((WorkerStateEvent event1) -> {
-            deactivateProgressBar("PlayItem cancelled.");
-            tasks.remove(task);
-        });
+        task.setOnCancelled(task.getOnFailed());
         cancelTasks();
-        activateProgressBar("Getting playitem...");
+        ProgressIndicator pi = new ProgressIndicator(-1.0);
+        pi.setMaxSize(50.0, 50.0);
+        border.setCenter(pi);
         exec.execute(task);
         tasks.add(task);
     }
