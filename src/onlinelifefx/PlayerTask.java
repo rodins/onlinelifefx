@@ -33,8 +33,17 @@ public class PlayerTask extends Task<Void> {
     
     @Override
     protected Void call() throws Exception {
-        String player = "D:\\sergey\\mpv\\mpv.exe";
-        //String player = "C:\\Program Files (x86)\\KMPlayer\\KMPlayer.exe";
+        String os = System.getProperty("os.name");
+        String player = "";
+        if(os.equals("Linux")) {
+            player = "mpv";
+        }else if(os.equals("Windows")) {
+            // TODO: Show file dialog to find player
+            // TODO: Save path to player as property
+            // TODO: On windows test JavaFX media player
+            player = "D:\\sergey\\mpv\\mpv.exe";
+        }
+
         ProcessBuilder pb = new ProcessBuilder(player, link);
         Process proc = pb.start();
         // Need to read stardart error for process not to hang
