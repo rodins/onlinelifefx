@@ -1063,7 +1063,7 @@ public class OnlinelifeFX extends Application {
     private void playMovie(PlayItem playItem) {
         PlayerTask task = new PlayerTask(playItem.getFile());
         task.setOnFailed((WorkerStateEvent event1) -> {
-            errorDialog("Player error!");
+            errorDialog("Player error! It needs mpv player to be installed in PATH.");
         });
         exec.execute(task);
     }

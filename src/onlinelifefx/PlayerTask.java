@@ -41,7 +41,7 @@ public class PlayerTask extends Task<Void> {
             // TODO: Show file dialog to find player
             // TODO: Save path to player as property
             // TODO: On windows test JavaFX media player
-            player = "D:\\sergey\\mpv\\mpv.exe";
+            player = "mpv.exe";
         }
 
         ProcessBuilder pb = new ProcessBuilder(player, link);
